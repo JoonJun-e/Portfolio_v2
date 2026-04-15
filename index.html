@@ -111,6 +111,29 @@
       text-decoration: none;
     }
 
+    /* ── COMPONENT: BUTTON ───────────────────────────────────── */
+    .c-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--s2);
+      font-family: var(--font-mono);
+      font-size: var(--t-xs);
+      letter-spacing: 0.08em;
+      padding: var(--s2) var(--s4);
+      background: var(--accent-dim);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      text-transform: uppercase;
+      transition: all var(--dur) var(--ease);
+      border-radius: 0; /* Design Rule: 0px Radius (칼각) */
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .c-btn:hover {
+      background: var(--accent);
+      color: var(--base);
+    }
+
     /* ── COMPONENT: NAV ──────────────────────────────────────── */
     .c-nav {
       position: fixed;
@@ -252,8 +275,8 @@
     /* Layer 0 — background ghost mark */
     .c-hero__ghost {
       position: absolute;
-      right: -0.04em;
-      bottom: -0.12em;
+      left: var(--s6);
+      top: 80px;
       font-family: var(--font-mono);
       font-size: clamp(180px, 22vw, 320px);
       font-weight: 500;
@@ -369,7 +392,7 @@
       animation: fadeUp 0.7s 0.2s var(--ease) both;
       position: relative;
       top: 6px;
-      overflow: hidden;
+      overflow: visible;
       aspect-ratio: 3 / 4;
     }
 
@@ -385,6 +408,23 @@
 
     .c-hero__photo:hover .c-hero__photo-img {
       filter: grayscale(0%);
+    }
+
+    .c-hero__photo::after {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      pointer-events: none;
+      background:
+        linear-gradient(var(--accent), var(--accent)) top left / 12px 2px no-repeat,
+        linear-gradient(var(--accent), var(--accent)) top left / 2px 12px no-repeat,
+        linear-gradient(var(--accent), var(--accent)) top right / 12px 2px no-repeat,
+        linear-gradient(var(--accent), var(--accent)) top right / 2px 12px no-repeat,
+        linear-gradient(var(--accent), var(--accent)) bottom left / 12px 2px no-repeat,
+        linear-gradient(var(--accent), var(--accent)) bottom left / 2px 12px no-repeat,
+        linear-gradient(var(--accent), var(--accent)) bottom right / 12px 2px no-repeat,
+        linear-gradient(var(--accent), var(--accent)) bottom right / 2px 12px no-repeat;
+      z-index: 2;
     }
 
     /* ── Spec card (footer 이동) ──────────────────────────────── */
@@ -943,6 +983,7 @@
       CSJ — Portfolio
     </div>
     <ul class="c-nav__links">
+      <li><a href="game-ux.html">Game UX 분석</a></li>
       <li><a href="#competencies">01 역량</a></li>
       <li><a href="#education">02 학력</a></li>
       <li><a href="#experience">03 경력</a></li>
@@ -1004,6 +1045,11 @@
           <span class="c-hero__meta-value">SKKU HAI Lab 석사과정</span>
           <span class="c-hero__meta-value">NTU WKWSCI, Singapore</span>
           <span class="c-hero__meta-value">AI Trust · HCI · UX Research</span>
+        </div>
+        <div style="margin-top: var(--s6);">
+          <a href="game-ux.html" class="c-btn">
+            [🎮] View Game UX Analysis →
+          </a>
         </div>
       </div>
       <div class="c-hero__photo">
@@ -1209,6 +1255,7 @@
             <span class="c-tag">Service Planning</span>
             <span class="c-tag">UX Research</span>
             <span class="c-tag">Jira / Confluence</span>
+            <span class="c-tag" style="color: var(--accent); border-color: var(--accent); background: var(--accent-dim);">기여도 20%</span>
           </div>
         </div>
       </div>
@@ -1231,6 +1278,7 @@
             <span class="c-tag">UX Research</span>
             <span class="c-tag">QA</span>
             <span class="c-tag">OpenAI API</span>
+            <span class="c-tag" style="color: var(--accent); border-color: var(--accent); background: var(--accent-dim);">기여도 30%</span>
           </div>
         </div>
       </div>
@@ -1252,6 +1300,7 @@
             <span class="c-tag">PM</span>
             <span class="c-tag">UX/UI Planning</span>
             <span class="c-tag">User Research</span>
+            <span class="c-tag" style="color: var(--accent); border-color: var(--accent); background: var(--accent-dim);">기여도 30%</span>
           </div>
         </div>
       </div>
@@ -1272,6 +1321,7 @@
             <span class="c-tag">Prompt Engineering</span>
             <span class="c-tag">Generative AI</span>
             <span class="c-tag">Design Thinking</span>
+            <span class="c-tag" style="color: var(--accent); border-color: var(--accent); background: var(--accent-dim);">기여도 50%</span>
           </div>
         </div>
       </div>
@@ -1293,7 +1343,8 @@
           <div class="c-pub__title">How and Who Should Refuse Harmful Requests in Voice Interaction?<br>Identifying AI
             Refusal Strategies by Focusing on Shifts in Source and Modality</div>
           <div class="c-pub__subtitle">음성 인터랙션 상황에서 AI는 어떻게 거절해야 하는가?: 출처와 모달리티의 변화에 따른 AI 거절 전략 규명</div>
-          <div class="c-pub__meta">[공동저자] Choi SeongJoon · CHI Conference on Human Factors in Computing Systems, 2026
+          <div class="c-pub__meta">[공동저자] Choi SeongJoon · CHI Conference on Human Factors in Computing Systems, 2026<br>
+            <span style="color: var(--accent);">* 본인 기여도: 20% (박사후연구원 포함 4인 공동연구)</span>
           </div>
         </div>
       </div>

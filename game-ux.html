@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game UX Analysis — Choi SeongJoon</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+
+  <style>
+    /* ═══════════════════════════════════════════════════════════════
+     DESIGN SYSTEM — Choi SeongJoon Portfolio
+     Philosophy: "Precision through Methodology"
+     모든 시각적 결정은 의도적이다. 모든 공간은 측정된다.
+  ═══════════════════════════════════════════════════════════════
+     RULES
+     1. GRID    8pt 기본 단위. 모든 간격 = n × 8px
+     2. COLOR   3단계 surface 계층 + 2개 accent
+     3. TYPE    Mono = 시스템/레이블, Sans = 본문, Display = 이름
+     4. LAYER   base(0) → surface(1) → content(2) → overlay(3)
+     5. RADIUS  기본 0(칼각). 태그만 4px 허용.
+     6. BORDER  1px solid, default #ffffff0f, strong #ffffff1f
+  ═══════════════════════════════════════════════════════════════ */
+
+    /* ── TOKENS ──────────────────────────────────────────────── */
+    :root {
+      /* Space (8pt grid) */
+      --s1: 8px;
+      --s2: 16px;
+      --s3: 24px;
+      --s4: 32px;
+      --s5: 40px;
+      --s6: 48px;
+      --s8: 64px;
+      --s10: 80px;
+      --s12: 96px;
+      --s16: 128px;
+
+      /* Color — Surface */
+      --base: #080808;
+      --surface-1: #0f0f0f;
+      --surface-2: #161616;
+      --surface-3: #1e1e1e;
+
+      /* Color — Border */
+      --border: rgba(255, 255, 255, 0.07);
+      --border-2: rgba(255, 255, 255, 0.14);
+      --border-3: rgba(255, 255, 255, 0.22);
+
+      /* Color — Foreground */
+      --fg-1: #ebe5d9;
+      --fg-2: rgba(235, 229, 217, 0.52);
+      --fg-3: rgba(235, 229, 217, 0.26);
+
+      /* Color — Accent */
+      --accent: #a8d84e;
+      --accent-dim: rgba(168, 216, 78, 0.10);
+      --accent-2: #55b8e2;
+      --accent-2-dim: rgba(85, 184, 226, 0.10);
+
+      /* Typography */
+      --font-sans: 'Pretendard Variable', 'Pretendard', system-ui, sans-serif;
+      --font-mono: 'DM Mono', 'Pretendard Variable', monospace;
+
+      /* Type scale */
+      --t-xs: 11px;
+      --t-sm: 13px;
+      --t-base: 15px;
+      --t-md: 17px;
+      --t-lg: 22px;
+      --t-xl: 32px;
+      --t-2xl: 52px;
+      --t-3xl: 84px;
+
+      /* Timing */
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+      --dur: 220ms;
+    }
+
+    /* ── RESET ───────────────────────────────────────────────── */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--base);
+      color: var(--fg-1);
+      font-family: var(--font-sans);
+      font-weight: 350;
+      line-height: 1.7;
+      min-height: 100vh;
+      word-break: keep-all;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* ── COMPONENT: NAV ──────────────────────────────────────── */
+    .c-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 var(--s6);
+      height: 56px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(8, 8, 8, 0.88);
+      backdrop-filter: blur(16px);
+    }
+
+    .c-nav__logo {
+      font-family: var(--font-mono);
+      font-size: var(--t-xs);
+      letter-spacing: 0.12em;
+      color: var(--fg-3);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: var(--s2);
+    }
+
+    .c-nav__logo-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .c-nav__links {
+      display: flex;
+      gap: var(--s1);
+      list-style: none;
+    }
+
+    .c-nav__links a {
+      font-family: var(--font-mono);
+      font-size: var(--t-xs);
+      letter-spacing: 0.08em;
+      color: var(--fg-3);
+      padding: var(--s1) var(--s2);
+      transition: color var(--dur) var(--ease);
+    }
+
+    .c-nav__links a:hover {
+      color: var(--fg-1);
+    }
+
+    /* ── COMPONENT: SECTION PROGRESS ────────────────────────── */
+    .c-seqbar {
+      position: fixed;
+      top: 56px;
+      left: 0;
+      right: 0;
+      z-index: 99;
+      height: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: rgba(8, 8, 8, 0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 var(--s6);
+    }
+
+    .c-seqbar__inner {
+      display: flex;
+      align-items: center;
+      max-width: 1280px;
+      width: 100%;
+      gap: 0;
+    }
+
+    .c-seqbar__item {
+      display: flex;
+      align-items: center;
+      gap: var(--s1);
+      text-decoration: none;
+      padding: 0 var(--s2);
+      height: 40px;
+      transition: all var(--dur) var(--ease);
+      flex-shrink: 0;
+    }
+
+    .c-seqbar__num {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      color: var(--fg-3);
+      transition: color var(--dur) var(--ease);
+      line-height: 1;
+    }
+
+    .c-seqbar__label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: var(--fg-3);
+      transition: color var(--dur) var(--ease);
+      white-space: nowrap;
+    }
+
+    .c-seqbar__item:hover .c-seqbar__num,
+    .c-seqbar__item:hover .c-seqbar__label {
+      color: var(--fg-1);
+    }
+
+    .c-seqbar__item.active .c-seqbar__num {
+      color: var(--accent);
+    }
+
+    .c-seqbar__item.active .c-seqbar__label {
+      color: var(--fg-1);
+    }
+
+    .c-seqbar__line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+      min-width: var(--s3);
+    }
+
+    /* ── COMPONENT: HERO ─────────────────────────────────────── */
+    .c-hero {
+      min-height: 100vh;
+      padding: calc(56px + 40px + var(--s16)) var(--s6) var(--s16);
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Layer 0 — background ghost mark */
+    .c-hero__ghost {
+      position: absolute;
+      right: -0.04em;
+      bottom: -0.12em;
+      font-family: var(--font-mono);
+      font-size: clamp(180px, 22vw, 320px);
+      font-weight: 500;
+      letter-spacing: -0.04em;
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(255, 255, 255, 0.035);
+      user-select: none;
+      pointer-events: none;
+      line-height: 1;
+      z-index: 0;
+    }
+
+    /* Layer 0 — dot grid */
+    .c-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background-image: radial-gradient(circle, rgba(255, 255, 255, 0.055) 1px, transparent 1px);
+      background-size: 32px 32px;
+      mask-image: radial-gradient(ellipse 70% 80% at 70% 40%, black 0%, transparent 100%);
+      -webkit-mask-image: radial-gradient(ellipse 70% 80% at 70% 40%, black 0%, transparent 100%);
+      pointer-events: none;
+    }
+
+    /* Layer 1 — content */
+    .c-hero__inner {
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      align-items: start;
+      gap: var(--s16);
+      max-width: 1280px;
+      width: 100%;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .c-hero__text {
+      flex: 1;
+      animation: fadeUp 0.7s var(--ease) both;
+    }
+
+    .c-hero__eyebrow {
+      font-family: var(--font-mono);
+      font-size: var(--t-xs);
+      letter-spacing: 0.16em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: var(--s3);
+      display: flex;
+      align-items: center;
+      gap: var(--s2);
+    }
+
+    .c-hero__eyebrow::before {
+      content: '';
+      display: block;
+      width: 20px;
+      height: 1px;
+      background: var(--accent);
+    }
+
+    .c-hero__name {
+      font-family: var(--font-sans);
+      font-size: clamp(var(--t-2xl), 6vw, var(--t-3xl));
+      font-weight: 300;
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+      color: var(--fg-1);
+      margin-bottom: var(--s6);
+    }
+
+    .c-hero__name span {
+      display: block;
+      font-weight: 500;
+    }
+
+    .c-hero__name em {
+      font-style: normal;
+      color: var(--fg-2);
+      font-size: 0.72em;
+      font-weight: 300;
+      letter-spacing: 0.01em;
+    }
+
+    .c-hero__meta {
+      display: grid;
+      grid-template-columns: repeat(3, auto);
+      gap: var(--s1) var(--s8);
+      width: fit-content;
+      padding-top: var(--s5);
+      border-top: 1px solid var(--border);
+    }
+
+    .c-hero__meta-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--fg-3);
+      padding-bottom: var(--s1);
+    }
+
+    .c-hero__meta-value {
+      font-size: var(--t-sm);
+      color: var(--fg-1);
+    }
+
+    /* ── Photo card ──────────────────────────────────────────── */
+    .c-hero__photo {
+      border: 1px solid var(--border-2);
+      animation: fadeUp 0.7s 0.2s var(--ease) both;
+      position: relative;
+      top: 6px;
+      overflow: hidden;
+      aspect-ratio: 3 / 4;
+    }
+
+    .c-hero__photo-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      display: block;
+      filter: grayscale(15%);
+      transition: filter 400ms var(--ease);
+    }
+
+    .c-hero__photo:hover .c-hero__photo-img {
+      filter: grayscale(0%);
+    }
+
+    /* ── Spec card (footer 이동) ──────────────────────────────── */
+    .c-footer__spec {
+      border: 1px solid var(--border);
+      padding: var(--s2) var(--s3);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0 var(--s5);
+      align-items: center;
+      width: 100%;
+      margin-top: var(--s3);
+    }
+
+    .c-footer__spec-label {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-right: var(--s3);
+      white-space: nowrap;
+    }
+
+    .c-footer__spec-row {
+      display: flex;
+      gap: 5px;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
+    .c-footer__spec-row span:first-child {
+      color: var(--fg-3);
+    }
+
+    .c-footer__spec-row span:last-child {
+      color: var(--fg-2);
+    }
+
+    .c-footer__spec-live {
+      color: var(--accent) !important;
+    }
+
+    /* ── COMPONENT: SECTION ──────────────────────────────────── */
+    .c-section {
+      padding: var(--s12) var(--s6);
+      max-width: 1280px;
+      margin: 0 auto;
+      scroll-margin-top: 104px;
+      border-top: 1px solid var(--border);
+    }
+
+    .c-section__header {
+      display: flex;
+      align-items: baseline;
+      gap: var(--s3);
+      margin-bottom: var(--s10);
+    }
+
+    .c-section__index {
+      font-family: var(--font-mono);
+      font-size: var(--t-xs);
+      color: var(--accent);
+      letter-spacing: 0.06em;
+      flex-shrink: 0;
+      line-height: 1;
+      position: relative;
+      top: -1px;
+    }
+
+    .c-section__title {
+      font-family: var(--font-mono);
+      font-size: var(--t-xs);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--fg-2);
+      flex-shrink: 0;
+    }
+
+    .c-section__rule {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── COMPONENT: COMPETENCY CARDS ─────────────────────────── */
+    .c-cards {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border: 1px solid var(--border);
+    }
+
+    .c-card {
+      padding: var(--s5) var(--s4);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      background: var(--surface-1);
+      transition: background var(--dur) var(--ease);
+      position: relative;
+    }
+
+    .c-card:last-child {
+      border-right: none;
+    }
+
+    .c-card:hover {
+      background: var(--surface-2);
+    }
+
+    .c-card__index {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--fg-3);
+      letter-spacing: 0.08em;
+      margin-bottom: var(--s3);
+    }
+
+    .c-card__title {
+      font-size: var(--t-md);
+      font-weight: 500;
+      color: var(--fg-1);
+      line-height: 1.4;
+      margin-bottom: var(--s3);
+      min-height: 4.8rem;
+      display: flex;
+      align-items: flex-start;
+    }
+
+    .c-card__body {
+      font-size: var(--t-sm);
+      color: var(--fg-2);
+      line-height: 1.65;
+      flex: 1;
+    }
+
+    /* accent line on hover */
+    .c-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--accent);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform var(--dur) var(--ease);
+    }
+
+    .c-card:hover::after {
+      transform: scaleX(1);
+    }
+
+    /* ── COMPONENT: TIMELINE ITEM ────────────────────────────── */
+    .c-timeline {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .c-timeline__item {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: var(--s8);
+      padding: var(--s8) 0;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+
+    .c-timeline__item:first-child {
+      border-top: 1px solid var(--border);
+    }
+
+    .c-timeline__left {
+      padding-top: 3px;
+    }
+
+    .c-timeline__org {
+      font-family: var(--font-mono);
+      font-size: var(--t-xs);
+      letter-spacing: 0.07em;
+      color: var(--accent-2);
+      margin-bottom: var(--s1);
+      text-transform: uppercase;
+    }
+
+    .c-timeline__period {
+      font-family: var(--font-mono);
+      font-size: var(--t-xs);
+      color: var(--fg-3);
+      line-height: 1.8;
+      letter-spacing: 0.04em;
+    }
+
+    .c-timeline__title {
+      font-size: var(--t-lg);
+      font-weight: 500;
+      color: var(--fg-1);
+      margin-bottom: var(--s3);
+      line-height: 1.35;
+    }
+
+    .c-timeline__body {
+      font-size: var(--t-base);
+      color: var(--fg-2);
+      line-height: 1.7;
+      margin-bottom: var(--s3);
+    }
+
+    .c-timeline__list {
+      list-style: none;
+      margin-bottom: var(--s4);
+    }
+
+    .c-timeline__list li {
+      font-size: var(--t-base);
+      color: var(--fg-1);
+      padding-left: var(--s3);
+      position: relative;
+      margin-bottom: var(--s2);
+      line-height: 1.65;
+    }
+
+    .c-timeline__list li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+
+    .c-timeline__list strong {
+      font-weight: 500;
+      color: var(--fg-1);
+    }
+
+    /* ── COMPONENT: AWARD BADGE ──────────────────────────────── */
+    .c-award {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--s1);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.07em;
+      padding: 4px 10px;
+      background: var(--accent-2-dim);
+      border: 1px solid rgba(85, 184, 226, 0.22);
+      color: var(--accent-2);
+      margin-bottom: var(--s3);
+      text-transform: uppercase;
+    }
+
+    .c-award::before {
+      content: '↑';
+      font-size: 10px;
+    }
+
+    /* ── COMPONENT: TAGS ─────────────────────────────────────── */
+    .c-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--s1);
+    }
+
+    .c-tag {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.04em;
+      padding: 4px 10px;
+      border: 1px solid var(--border-2);
+      border-radius: 4px;
+      color: var(--fg-3);
+      background: var(--surface-2);
+    }
+
+    /* ── COMPONENT: PUBLICATION ──────────────────────────────── */
+    .c-pub {
+      display: grid;
+      grid-template-columns: 100px 1fr;
+      gap: var(--s6);
+      padding: var(--s6) 0;
+      border-bottom: 1px solid var(--border);
+      align-items: start;
+    }
+
+    .c-pub:first-child {
+      border-top: 1px solid var(--border);
+    }
+
+    .c-pub__badge {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      padding: 5px 10px;
+      background: var(--accent-dim);
+      border: 1px solid rgba(168, 216, 78, 0.2);
+      color: var(--accent);
+      text-align: center;
+      white-space: nowrap;
+      margin-top: 3px;
+    }
+
+    .c-pub__title {
+      font-size: var(--t-lg);
+      font-weight: 500;
+      color: var(--fg-1);
+      margin-bottom: var(--s2);
+      line-height: 1.4;
+    }
+
+    .c-pub__subtitle {
+      font-size: var(--t-sm);
+      font-weight: 300;
+      color: var(--fg-2);
+      margin-bottom: var(--s2);
+      line-height: 1.55;
+      font-style: italic;
+    }
+
+    .c-pub__meta {
+      font-family: var(--font-mono);
+      font-size: var(--t-xs);
+      color: var(--fg-3);
+      letter-spacing: 0.04em;
+    }
+
+    /* ── COMPONENT: SKILLS TABLE ─────────────────────────────── */
+    .c-skills-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: var(--s16);
+      margin-bottom: var(--s10);
+    }
+
+    .c-skills-col-head {
+      font-family: var(--font-mono);
+      font-size: var(--t-xs);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      padding-bottom: var(--s3);
+    }
+
+    .c-skill-row,
+    .c-tool-row {
+      font-size: var(--t-base);
+      color: var(--fg-1);
+      display: flex;
+      align-items: center;
+      gap: var(--s2);
+      padding: var(--s2) 0 calc(var(--s2) - 1px);
+      border-top: 1px solid var(--border);
+    }
+
+    .c-skill-dot {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--fg-3);
+      flex-shrink: 0;
+    }
+
+    .c-tool-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--fg-3);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .c-tool-label::after {
+      content: ':';
+      margin-left: 1px;
+    }
+
+    .c-tool-value {
+      color: var(--fg-2);
+    }
+
+    /* ── COMPONENT: CERT LIST ────────────────────────────────── */
+    .c-cert-block {
+      padding-top: var(--s8);
+      border-top: 1px solid var(--border);
+    }
+
+    .c-cert-head {
+      font-family: var(--font-mono);
+      font-size: var(--t-xs);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: var(--s4);
+    }
+
+    .c-cert-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: var(--s2);
+    }
+
+    .c-cert-list li {
+      display: flex;
+      align-items: baseline;
+      gap: var(--s3);
+      flex-wrap: wrap;
+      padding: var(--s2) 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .c-cert-list strong {
+      font-size: var(--t-base);
+      font-weight: 500;
+      color: var(--fg-1);
+    }
+
+    .c-cert-meta {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--fg-3);
+      letter-spacing: 0.04em;
+    }
+
+    /* ── COMPONENT: FOOTER ───────────────────────────────────── */
+    .c-footer {
+      border-top: 1px solid var(--border);
+      padding: var(--s6);
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: var(--s3);
+    }
+
+    .c-footer__copy {
+      font-family: var(--font-mono);
+      font-size: var(--t-xs);
+      color: var(--fg-3);
+      letter-spacing: 0.08em;
+    }
+
+    .c-footer__links {
+      display: flex;
+      gap: var(--s5);
+    }
+
+    .c-footer__link {
+      font-family: var(--font-mono);
+      font-size: var(--t-xs);
+      color: var(--fg-3);
+      letter-spacing: 0.08em;
+      transition: color var(--dur) var(--ease);
+      text-transform: uppercase;
+    }
+
+    .c-footer__link:hover {
+      color: var(--accent);
+    }
+
+    /* ── ANIMATION ───────────────────────────────────────────── */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ── RESPONSIVE ──────────────────────────────────────────── */
+    @media (max-width: 960px) {
+      .c-cards {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .c-card {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .c-card:nth-child(odd) {
+        border-right: 1px solid var(--border);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .c-nav {
+        padding: 0 var(--s3);
+      }
+
+      .c-nav__links {
+        display: none;
+      }
+
+      .c-seqbar {
+        padding: 0 var(--s3);
+      }
+
+      .c-seqbar__label {
+        display: none;
+      }
+
+      .c-hero {
+        padding: calc(56px + 40px + var(--s10)) var(--s3) var(--s10);
+      }
+
+      .c-hero__inner {
+        grid-template-columns: 1fr;
+        gap: var(--s5);
+      }
+
+      .c-hero__photo {
+        display: none;
+      }
+
+      .c-hero__meta {
+        grid-template-columns: 1fr 1fr;
+        gap: var(--s2) var(--s5);
+      }
+
+      .c-section {
+        padding: var(--s10) var(--s3);
+      }
+
+      .c-timeline__item {
+        grid-template-columns: 1fr;
+        gap: var(--s3);
+        padding: var(--s5) 0;
+      }
+
+      .c-pub {
+        grid-template-columns: 1fr;
+        gap: var(--s2);
+      }
+
+      .c-skills-grid {
+        grid-template-columns: 1fr;
+        column-gap: 0;
+      }
+
+      .c-cards {
+        grid-template-columns: 1fr;
+      }
+
+      .c-card:nth-child(odd) {
+        border-right: none;
+      }
+    }
+
+    /* Article Specific */
+    .c-article {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: var(--s12) var(--s6);
+      padding-top: calc(56px + var(--s12));
+    }
+
+    .c-article__title {
+      font-size: var(--t-2xl);
+      font-weight: 300;
+      color: var(--fg-1);
+      margin-bottom: var(--s6);
+      line-height: 1.2;
+    }
+
+    .c-article__title span {
+      font-weight: 500;
+    }
+
+    .c-article__section {
+      margin-bottom: var(--s12);
+      border-top: 1px solid var(--border);
+      padding-top: var(--s8);
+    }
+
+    .c-article__h2 {
+      font-size: var(--t-xl);
+      font-weight: 500;
+      margin-bottom: var(--s4);
+      color: var(--fg-1);
+    }
+
+    .c-article__h3 {
+      font-size: var(--t-lg);
+      font-weight: 500;
+      margin-bottom: var(--s3);
+      color: var(--accent);
+      margin-top: var(--s6);
+    }
+
+    .c-article__p {
+      font-size: var(--t-md);
+      color: var(--fg-2);
+      line-height: 1.7;
+      margin-bottom: var(--s4);
+      word-break: keep-all;
+    }
+
+    .c-article__img-grid {
+      display: grid;
+      gap: var(--s4);
+      margin: var(--s6) 0;
+    }
+
+    .c-article__img-grid--2 {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .c-article__img-grid--3 {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    @media (max-width: 768px) {
+      .c-article__img-grid {
+        grid-template-columns: 1fr !important;
+      }
+    }
+
+    .c-article__img {
+      width: 100%;
+      border: 1px solid var(--border-2);
+      display: block;
+      background: #000;
+    }
+
+    .c-article__img-caption {
+      font-family: var(--font-mono);
+      font-size: var(--t-xs);
+      color: var(--fg-3);
+      margin-top: var(--s2);
+      text-align: center;
+    }
+
+    .c-solution-box {
+      background: var(--surface-1);
+      border: 1px solid var(--border-2);
+      padding: var(--s5);
+      margin-top: var(--s4);
+      border-left: 3px solid var(--accent);
+    }
+
+    .c-solution-box-title {
+      font-family: var(--font-mono);
+      font-size: var(--t-xs);
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: var(--s3);
+    }
+
+    .c-solution-box ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .c-solution-box li {
+      padding-left: var(--s4);
+      position: relative;
+      margin-bottom: var(--s3);
+      color: var(--fg-1);
+      line-height: 1.6;
+    }
+
+    .c-solution-box li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-family: var(--font-mono);
+    }
+
+    .c-solution-box li strong {
+      color: var(--accent-2);
+      font-weight: 500;
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <!-- NAV -->
+  <nav class="c-nav">
+    <div class="c-nav__logo">
+      <span class="c-nav__logo-dot"></span>
+      <a href="index.html">CSJ — Portfolio</a>
+    </div>
+    <ul class="c-nav__links">
+      <li><a href="index.html">← HOME</a></li>
+    </ul>
+  </nav>
+
+  <main class="c-article">
+    <div class="c-article__img-grid c-article__img-grid--2" style="margin-bottom: var(--s8);">
+      <div style="position: relative; display: block;">
+        <img src="메이플스토리PC.png" alt="메이플스토리 PC 캐릭터 창" class="c-article__img"
+          style="border: 1px solid var(--border-2); border-radius: 0;">
+        <div
+          style="position: absolute; bottom: 12px; right: 12px; background: rgba(8, 8, 8, 0.85); color: var(--accent); padding: 4px 10px; font-family: var(--font-mono); font-size: 11px; border: 1px solid var(--accent); letter-spacing: 0.05em; pointer-events: none;">
+          * 지원자 최성준의 메이플 계정
+        </div>
+      </div>
+      <div style="position: relative; display: block;">
+        <img src="메이플M.png" alt="메이플스토리 M 메인 화면" class="c-article__img"
+          style="border: 1px solid var(--border-2); border-radius: 0;">
+        <div
+          style="position: absolute; bottom: 12px; right: 12px; background: rgba(8, 8, 8, 0.85); color: var(--accent); padding: 4px 10px; font-family: var(--font-mono); font-size: 11px; border: 1px solid var(--accent); letter-spacing: 0.05em; pointer-events: none;">
+          * 지원자 최성준의 메이플M 계정
+        </div>
+      </div>
+    </div>
+    <h1 class="c-article__title"><span>Game UX Analysis</span><br>개선 분석 및 리포트</h1>
+
+    <section class="c-article__section">
+      <h2 class="c-article__h2">1. Intro: 플레이어 프로필 및 게임 이해도</h2>
+      <p class="c-article__p">본 UX/UI 분석은 제가 1년 동안 단 하루도 빠짐없이 매일 접속하며 애정을 갖고 플레이해 온 <strong>'세븐나이츠 리버스(Seven Knights
+          Rebirth)'</strong>를 바탕으로 진행합니다. 과거 원작 '세븐나이츠1'을 깊게 플레이했던 유저로서 이번 작 역시 매우 재미있게 즐기고 있으며, PVE 마스터 및 PVP 챌린저
+        티어(상위권) 등 랭커 수준의 높은 게임 이해도와 플레이 이력을 보유하고 있습니다. 이러한 실질적인 데이터를 바탕으로, 유저 경험에 긍정적 영향을 주는 시스템적 장치와 체감되는 페인포인트(Pain
+        Point)를 심도 있게 분석했습니다.</p>
+
+      <div class="c-article__img-grid c-article__img-grid--2">
+        <div>
+          <img src="개인 스펙(PVE마스터 및 PVP 상위권) 길드 내에서도 상위권 및 첼린져티어.PNG" alt="개인 스펙"
+            class="c-article__img">
+          <div class="c-article__img-caption">PVE 마스터 및 PVP 챌린저 티어 / 길드 내 상위권</div>
+        </div>
+        <div>
+          <img src="길드전순위.PNG" alt="길드전 순위" class="c-article__img">
+          <div class="c-article__img-caption">길드전 순위 및 활동 기록</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="c-article__section">
+      <h2 class="c-article__h2">2. 상급 결투장: 인지 부조화를 일으키는 버튼 피드백</h2>
+
+      <h3 class="c-article__h3">Pain Point (문제점)</h3>
+      <p class="c-article__p">상급 결투장에서는 하루에 입장권을 최대 5개까지 구매할 수 있습니다. 하지만 일일 구매 가능 횟수(5회)를 모두 소진했음에도 불구하고 <strong>‘구매
+          버튼’이 비활성화되지 않고 계속 클릭되는 문제</strong>가 있습니다. 유저는 버튼이 활성화되어 있기 때문에 시스템 오류로 오인하거나 계속해서 클릭을 시도하게 되며, 불필요한 조작과 유저 경험의
+        혼란을 야기합니다.</p>
+
+      <div class="c-article__img-grid c-article__img-grid--3">
+        <div>
+          <img src="상급결투장 메인화면.PNG" alt="상급결투장 메인" class="c-article__img">
+          <div class="c-article__img-caption">상급 결투장 메인 화면 (횟수 제한 있음)</div>
+        </div>
+        <div>
+          <img src="상급결투장 이미 5번 다 샀는데 또 클릭됨.PNG" alt="구매 버튼 클릭됨" class="c-article__img">
+          <div class="c-article__img-caption">잔여 횟수가 없어도 구매 버튼이 눌림</div>
+        </div>
+        <div>
+          <img src="상급결투장 구매가능한횟수 초과.PNG" alt="구매가능횟수 초과" class="c-article__img">
+          <div class="c-article__img-caption">눌린 이후 뒤늦게 초과 안내 등장</div>
+        </div>
+      </div>
+
+      <div class="c-solution-box">
+        <div class="c-solution-box-title">UX Improvement / 개선 제안</div>
+        <ul>
+          <li><strong>시각적 비활성화 (Disabled State 활용):</strong> 5회 구매가 완료된 시점에서 구매 버튼을 회색 처리(Dimmed)하여 직관적으로 클릭이 불가능한 상태임을
+            인지시킵니다. 버튼 텍스트를 '구매 완료'로 변경하는 것도 좋은 방법입니다.</li>
+          <li><strong>직관적인 피드백 (Toast 팝업):</strong> 시스템 한계상 버튼을 열어두어야 한다면, 클릭 시 빈 화면이나 반응 없음이 아니라 "이미 구매를 완료했습니다"라는 짧은
+            토스트(Toast) 팝업을 띄워 유저에게 즉각적이고 명확한 피드백을 전달해야 합니다.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="c-article__section">
+      <h2 class="c-article__h2">3. 길드전: 덱 구성 화면의 사용성(Usability) 한계</h2>
+
+      <h3 class="c-article__h3">Pain Point (문제점)</h3>
+      <p class="c-article__p">길드전의 핵심 재미는 상대방의 덱을 분석하고 내 덱을 조합해 '카운터'를 치는 전략성에 있습니다. 이를 위해 약 50명 이상의 캐릭터 중 신중하게 선택을 해야
+        하는데, <strong>현재 내 캐릭터 목록이 가로 스크롤(슬라이드)로만 제공되어 덱 구성의 시야가 좁아지고 효율성이 매우 떨어집니다.</strong></p>
+      <p class="c-article__p">우측의 사각형 뷰 버튼을 누르면 전체 캐릭터를 한눈에 볼 수 있지만, <strong>이 화면을 열면 상대방의 덱 정보가 완전히 가려져버리는 치명적인
+          단점</strong>이 발생합니다. 결국 상대 덱을 보면서 내 캐릭터를 맞춤형으로 고르는 핵심 플레이 흐름이 끊기게 됩니다.</p>
+
+      <div class="c-article__img-grid">
+        <div style="max-width:800px;">
+          <img src="길드전 -카드 슬라이드 형식으로 약 50명이나 되는 캐릭터를 골라야하는 상황 상.PNG"
+            alt="길드전 덱 설정" class="c-article__img">
+          <div class="c-article__img-caption">약 50명의 캐릭터를 제한된 가로 스크롤만으로 탐색해야 하는 답답한 덱 구성 화면</div>
+        </div>
+      </div>
+
+      <div class="c-solution-box">
+        <div class="c-solution-box-title">UX Improvement / 개선 제안</div>
+        <ul>
+          <li><strong>화면 분할 및 레이아웃 재배치:</strong> 상대방의 덱 리스트를 화면 상단이나 일부분인 플로팅 영역에 고정(Sticky)시키고, 하단 영역에 내 전체 캐릭터 목록(그리드
+            뷰)을 띄워 <strong>'상대 덱 정보 확인'과 '내 덱 구성'이 시선 이동 없이 동시에 이루어질 수 있도록 개선</strong>해야 합니다.</li>
+          <li><strong>필터링 및 정렬 도입:</strong> 좁은 영역에서 가로로 끝없이 넘기는 수고를 덜기 위해 역할군(탱커/딜러/힐러 등) 및 속성 등의 퀵 필터를 상단에 배치하여, 원하는
+            영웅을 빠르게 찾아 드롭할 수 있는 효율적인 동선을 구축해야 합니다.</li>
+        </ul>
+      </div>
+    </section>
+    <section class="c-article__section" id="sevenknights-positive-ux">
+      <h2 class="c-article__h2">4. 몰입형 UX: 끊김 없는 인터랙션과 다이내믹한 카메라 앵글</h2>
+
+      <h3 class="c-article__h3">Positive UX Analysis (긍정적 사용자 경험)</h3>
+      <p class="c-article__p">위에서 다룬 일부 불편사항에도 불구하고 제가 1년 넘게 세븐나이츠 리버스를 매일 즐기는 가장 큰 이유는, 단연코 <strong>압도적인 몰입감을 제공하는 매끄러운 화면 전환과 역동적인 카메라 무빙</strong>에 있습니다. 이러한 시각적 흐름은 단순한 미적 요소를 넘어, 플레이어의 인지와 감각을 강하게 끌어들이는 정교한 HCI 메커니즘으로 작동합니다.</p>
+
+      <div class="c-article__img-grid c-article__img-grid--2" style="margin-bottom: var(--s6);">
+        <div>
+          <video src="세나리 몰입형 UX1.mp4" controls autoplay muted loop class="c-article__img"
+            style="border: 1px solid var(--border-2); border-radius: 0; width: 100%; aspect-ratio: 16/9; object-fit: cover;"></video>
+          <div class="c-article__img-caption">역동적인 카메라 이동1</div>
+        </div>
+        <div>
+          <video src="세나리 몰입형 UX2.mp4" controls autoplay muted loop class="c-article__img"
+            style="border: 1px solid var(--border-2); border-radius: 0; width: 100%; aspect-ratio: 16/9; object-fit: cover;"></video>
+          <div class="c-article__img-caption">역동적인 카메라 이동2</div>
+        </div>
+      </div>
+
+      <div class="c-solution-box" style="border-left-color: var(--accent-2);">
+        <div class="c-solution-box-title" style="color: var(--accent-2);">HCI & UX Analysis: 카메라 앵글과 몰입 메커니즘</div>
+        <ul>
+          <li><strong>Spatial Presence 극대화:</strong> 평면적인 화면 환경의 한계를 극복하기 위해, 전환 시 카메라가 급격하게 Zoom-in 되고 앵글이 다이내믹하게 교차됩니다. 이러한 파노라마식 시점 이동은 유저가 화면 밖의 관찰자가 아닌 가상 환경과 인터페이스 '중심'에 위치하고 있다는 강렬한 Presence를 부여합니다.</li>
+          <li><strong>Kinesthetic Feedback 과 Flow 유지:</strong> 메뉴 화면의 전환과 완벽히 동기화된 카메라의 흐름(Camera Flow) 및 부드러운 전환 효과는, 유저 스스로가 시공간을 물리적으로 조종하고 나아가는 듯한 쾌감인 Kinesthetic Feedback을 유도합니다. 이처럼 인지적 끊김(Cognitive Friction) 없이 매끄러운 시각적 피드백 루프는 플레이어의 <strong>Flow State</strong>를 극대화 시키고 장기 리텐션을 견인하는 핵심 동인이 됩니다.</li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="c-footer">
+    <span class="c-footer__copy">© 2026 Choi SeongJoon — Game UX Analysis</span>
+    <div class="c-footer__links">
+      <a href="index.html" class="c-footer__link">Return to Home</a>
+    </div>
+  </footer>
+
+</body>
+
+</html>
