@@ -752,6 +752,12 @@
       grid-template-columns: 1fr 1fr;
       column-gap: var(--s16);
       margin-bottom: var(--s10);
+      align-items: start;
+    }
+
+    .c-skills-col {
+      display: flex;
+      flex-direction: column;
     }
 
     .c-skills-col-head {
@@ -761,16 +767,18 @@
       text-transform: uppercase;
       color: var(--accent);
       padding-bottom: var(--s3);
+      border-bottom: 1px solid var(--border-2);
+      margin-bottom: 0;
     }
 
-    .c-skill-row,
-    .c-tool-row {
+    /* Left column — skill list */
+    .c-skill-row {
       font-size: var(--t-base);
       color: var(--fg-1);
       display: flex;
       align-items: center;
       gap: var(--s2);
-      padding: var(--s2) 0 calc(var(--s2) - 1px);
+      padding: calc(var(--s2) + 2px) 0 var(--s2);
       border-top: 1px solid var(--border);
     }
 
@@ -782,21 +790,32 @@
       flex-shrink: 0;
     }
 
-    .c-tool-label {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--fg-3);
-      white-space: nowrap;
-      flex-shrink: 0;
+    /* Right column — tools stacked per entry */
+    .c-tools-table {
+      display: flex;
+      flex-direction: column;
     }
 
-    .c-tool-label::after {
-      content: ':';
-      margin-left: 1px;
+    .c-tool-entry {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      padding: var(--s3) 0 calc(var(--s3) - 1px);
+      border-top: 1px solid var(--border);
+    }
+
+    .c-tool-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: var(--fg-3);
+      text-transform: uppercase;
     }
 
     .c-tool-value {
+      font-size: var(--t-sm);
       color: var(--fg-2);
+      line-height: 1.6;
     }
 
     /* ── COMPONENT: CERT LIST ────────────────────────────────── */
@@ -880,6 +899,11 @@
     .c-footer__link:hover {
       color: var(--accent);
     }
+
+    /* ── GAME CONTENT TOGGLE ────────────────────────────────── */
+    /* SHOW_GAME_PORTFOLIO = false → hidden by default */
+    .game-item { display: none; }
+    body.game-visible .game-item { display: revert; }
 
     /* ── ANIMATION ───────────────────────────────────────────── */
     @keyframes fadeUp {
@@ -983,7 +1007,7 @@
       CSJ — Portfolio
     </div>
     <ul class="c-nav__links">
-      <li><a href="game-ux.html">Game UX 분석</a></li>
+      <li class="game-item"><a href="game-ux.html">Game UX 분석</a></li>
       <li><a href="#competencies">01 역량</a></li>
       <li><a href="#education">02 학력</a></li>
       <li><a href="#experience">03 경력</a></li>
@@ -1046,7 +1070,7 @@
           <span class="c-hero__meta-value">NTU WKWSCI, Singapore</span>
           <span class="c-hero__meta-value">AI Trust · HCI · UX Research</span>
         </div>
-        <div style="margin-top: var(--s6);">
+        <div style="margin-top: var(--s6);" class="game-item">
           <a href="game-ux.html" class="c-btn">
             [🎮] View Game UX Analysis →
           </a>
@@ -1360,27 +1384,29 @@
     </div>
 
     <div class="c-skills-grid">
-      <div class="c-skills-col-head">직무 역량 (Skills)</div>
-      <div class="c-skills-col-head">도구 및 AI 활용 (Tools)</div>
-
-      <div class="c-skill-row"><span class="c-skill-dot"></span>UX 리서치 기반 인사이트 도출</div>
-      <div class="c-tool-row"><span class="c-tool-label">AI 바이브 코딩 및 디자인</span><span class="c-tool-value">Figma Make,
-          Claude Code, Antigravity, Gemini CLI, Claude Artifacts, Gemini Canvas, NotebookLM</span></div>
-
-      <div class="c-skill-row"><span class="c-skill-dot"></span>인터랙션 디자인 및 유저 플로우 기획</div>
-      <div class="c-tool-row"><span class="c-tool-label">문서화 및 디자인</span><span class="c-tool-value">Figma, Google
-          Workspace with Gemini</span></div>
-
-      <div class="c-skill-row"><span class="c-skill-dot"></span>HCI (인간-컴퓨터 상호작용) 방법론</div>
-      <div class="c-tool-row"><span class="c-tool-label">리서치 및 분석</span><span class="c-tool-value">SQL (BigQuery),
-          Splunk, Mixpanel</span></div>
-
-      <div class="c-skill-row"><span class="c-skill-dot"></span>AI 프롬프팅 및 모델 사용 경험 최적화</div>
-      <div class="c-tool-row"><span class="c-tool-label">어학</span><span class="c-tool-value">TOEIC Speaking IH
-          (Intermediate High)</span></div>
-
-      <div class="c-skill-row"><span class="c-skill-dot"></span>데이터 분석 논리 및 기획 역량</div>
-      <div class="c-tool-row"></div>
+      <!-- Left: Skills -->
+      <div class="c-skills-col">
+        <div class="c-skills-col-head">직무 역량 (Skills)</div>
+        <div class="c-skill-row"><span class="c-skill-dot"></span>UX 리서치 기반 인사이트 도출</div>
+        <div class="c-skill-row"><span class="c-skill-dot"></span>인터랙션 디자인 및 유저 플로우 기획</div>
+        <div class="c-skill-row"><span class="c-skill-dot"></span>HCI (인간-컴퓨터 상호작용) 방법론</div>
+        <div class="c-skill-row"><span class="c-skill-dot"></span>AI 프롬프팅 및 모델 사용 경험 최적화</div>
+        <div class="c-skill-row"><span class="c-skill-dot"></span>데이터 분석 논리 및 기획 역량</div>
+      </div>
+      <!-- Right: Tools — sub-grid aligns all values at same column -->
+      <div class="c-skills-col">
+        <div class="c-skills-col-head">도구 및 AI 활용 (Tools)</div>
+        <div class="c-tools-table">
+          <span class="c-tool-label">AI 바이브 코딩</span>
+          <span class="c-tool-value">Figma Make, Claude Code, Antigravity, Gemini CLI, Claude Artifacts, Gemini Canvas, NotebookLM</span>
+          <span class="c-tool-label">문서화 및 디자인</span>
+          <span class="c-tool-value">Figma, Google Workspace with Gemini</span>
+          <span class="c-tool-label">리서치 및 분석</span>
+          <span class="c-tool-value">SQL (BigQuery), Splunk, Mixpanel</span>
+          <span class="c-tool-label">어학</span>
+          <span class="c-tool-value">TOEIC Speaking IH (Intermediate High)</span>
+        </div>
+      </div>
     </div>
 
     <div class="c-cert-block">
@@ -1414,6 +1440,11 @@
   </footer>
 
   <script>
+    // ── GAME PORTFOLIO VISIBILITY ─────────────────────────────
+    // Set to true to show Game UX Analysis link and hero button
+    const SHOW_GAME_PORTFOLIO = false;
+    if (SHOW_GAME_PORTFOLIO) document.body.classList.add('game-visible');
+
     const sections = ['competencies', 'education', 'experience', 'projects', 'publications', 'skills'];
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
