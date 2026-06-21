@@ -746,6 +746,22 @@
       letter-spacing: 0.04em;
     }
 
+    .c-pub__link {
+      display: inline-block;
+      margin-top: var(--s2);
+      font-family: var(--font-mono);
+      font-size: var(--t-xs);
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(168, 216, 78, 0.4);
+      transition: opacity var(--dur) var(--ease);
+    }
+
+    .c-pub__link:hover {
+      opacity: 0.7;
+    }
+
     /* ── COMPONENT: SKILLS TABLE ─────────────────────────────── */
     .c-skills-grid {
       display: grid;
@@ -918,6 +934,117 @@
       }
     }
 
+    /* ── COMPONENT: INTRO — scroll-driven Human ↔ AI ─────────── */
+    .c-intro {
+      height: 420vh;
+      position: relative;
+      background: var(--base);
+    }
+
+    .c-intro__sticky {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .c-intro__canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .c-intro__caption {
+      position: absolute;
+      left: var(--s6);
+      bottom: var(--s10);
+      z-index: 2;
+      pointer-events: none;
+      transition: opacity 300ms var(--ease);
+    }
+
+    .c-intro__phase {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: var(--t-xs);
+      letter-spacing: 0.16em;
+      color: var(--accent);
+      margin-bottom: var(--s1);
+    }
+
+    .c-intro__label {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: var(--t-lg);
+      font-weight: 400;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--fg-1);
+      margin-bottom: var(--s1);
+    }
+
+    .c-intro__sub {
+      display: block;
+      font-size: var(--t-sm);
+      color: var(--fg-2);
+      max-width: 360px;
+      line-height: 1.6;
+    }
+
+    .c-intro__skip {
+      position: absolute;
+      right: var(--s6);
+      bottom: var(--s10);
+      z-index: 2;
+      background: none;
+      border: 1px solid var(--border-2);
+      color: var(--fg-2);
+      font-family: var(--font-mono);
+      font-size: var(--t-xs);
+      letter-spacing: 0.14em;
+      padding: var(--s1) var(--s2);
+      cursor: pointer;
+      transition: border-color var(--dur) var(--ease), color var(--dur) var(--ease);
+    }
+
+    .c-intro__skip:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .c-intro__hint {
+      position: absolute;
+      left: 50%;
+      bottom: var(--s4);
+      transform: translateX(-50%);
+      z-index: 2;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      color: var(--fg-3);
+      pointer-events: none;
+      transition: opacity 400ms var(--ease);
+      animation: introHint 2.2s ease-in-out infinite;
+    }
+
+    @keyframes introHint {
+      0%, 100% { transform: translate(-50%, 0); }
+      50% { transform: translate(-50%, 6px); }
+    }
+
+    @media (max-width: 768px) {
+      .c-intro { height: 320vh; }
+      .c-intro__caption { left: var(--s3); bottom: var(--s12); }
+      .c-intro__skip { right: var(--s3); bottom: var(--s12); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .c-intro { height: 100vh; }
+      .c-intro__hint { animation: none; }
+    }
+
     /* ── RESPONSIVE ──────────────────────────────────────────── */
     @media (max-width: 960px) {
       .c-cards {
@@ -1049,6 +1176,20 @@
         <span class="c-seqbar__num">06</span>
         <span class="c-seqbar__label">스킬 & 자격증</span>
       </a>
+    </div>
+  </div>
+
+  <!-- INTRO — scroll-driven interaction: Human ↔ AI -->
+  <div class="c-intro" id="intro" aria-label="Human-AI interaction visual intro">
+    <div class="c-intro__sticky">
+      <canvas class="c-intro__canvas" aria-hidden="true"></canvas>
+      <div class="c-intro__caption">
+        <span class="c-intro__phase">01 / 04</span>
+        <span class="c-intro__label">Two Entities</span>
+        <span class="c-intro__sub">인간과 AI, 서로 다른 질서.</span>
+      </div>
+      <button class="c-intro__skip" type="button">SKIP ↓</button>
+      <div class="c-intro__hint">SCROLL</div>
     </div>
   </div>
 
@@ -1370,6 +1511,8 @@
           <div class="c-pub__meta">[공동저자] Choi SeongJoon · CHI Conference on Human Factors in Computing Systems, 2026<br>
             <span style="color: var(--accent);">* 본인 기여도: 20% (박사후연구원 포함 4인 공동연구)</span>
           </div>
+          <a href="https://dl.acm.org/doi/full/10.1145/3772363.3799083" target="_blank" rel="noopener"
+            class="c-pub__link">ACM Digital Library ↗</a>
         </div>
       </div>
     </div>
@@ -1440,6 +1583,233 @@
   </footer>
 
   <script>
+    // ── INTRO — scroll-driven particle convergence (Human ↔ AI) ──
+    (() => {
+      const intro = document.getElementById('intro');
+      if (!intro) return;
+      const canvas = intro.querySelector('.c-intro__canvas');
+      const ctx = canvas.getContext('2d');
+      const captionEl = intro.querySelector('.c-intro__caption');
+      const phaseEl = intro.querySelector('.c-intro__phase');
+      const labelEl = intro.querySelector('.c-intro__label');
+      const subEl = intro.querySelector('.c-intro__sub');
+      const skipBtn = intro.querySelector('.c-intro__skip');
+      const hintEl = intro.querySelector('.c-intro__hint');
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      const PHASES = [
+        { at: 0.00, num: '01 / 04', label: 'Two Entities', sub: '인간과 AI, 서로 다른 질서.' },
+        { at: 0.28, num: '02 / 04', label: 'Signal', sub: '신호를 주고받으며 서로를 학습한다.' },
+        { at: 0.55, num: '03 / 04', label: 'Convergence', sub: '경계가 흐려지고, 하나의 시스템이 된다.' },
+        { at: 0.82, num: '04 / 04', label: 'Interaction', sub: '나는 그 접점을 연구한다 — Human-AI Interaction.' }
+      ];
+      const HUMAN_COLOR = [235, 229, 217];
+      const AI_COLOR = [168, 216, 78];
+
+      const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+      const seg = (p, a, b) => clamp((p - a) / (b - a), 0, 1);
+      const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      const lerp = (a, b, t) => a + (b - a) * t;
+
+      let W = 0, H = 0, dpr = 1;
+      let particles = [], links = [];
+      let humanC, aiC, clusterR;
+      let p = 0, pRaw = 0, phaseIdx = -1, rafOn = false;
+
+      function sampleTextPoints() {
+        const off = document.createElement('canvas');
+        const octx = off.getContext('2d', { willReadFrequently: true });
+        off.width = W; off.height = H;
+        const fs = Math.min(W * 0.085, 110);
+        octx.font = `500 ${fs}px "DM Mono", monospace`;
+        octx.textAlign = 'center';
+        octx.textBaseline = 'middle';
+        octx.fillStyle = '#fff';
+        if (W < 720) {
+          octx.fillText('HUMAN', W / 2, H * 0.40);
+          octx.fillText('× AI', W / 2, H * 0.40 + fs * 1.25);
+        } else {
+          octx.fillText('HUMAN × AI', W / 2, H * 0.44);
+        }
+        const data = octx.getImageData(0, 0, W, H).data;
+        const step = Math.max(4, Math.round(fs / 16));
+        const pts = [];
+        for (let y = 0; y < H; y += step)
+          for (let x = 0; x < W; x += step)
+            if (data[(y * W + x) * 4 + 3] > 128) pts.push([x, y]);
+        return pts;
+      }
+
+      function build() {
+        W = intro.clientWidth; H = window.innerHeight;
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = W * dpr; canvas.height = H * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        const mobile = W < 720;
+        const N = mobile ? 130 : 240;
+        humanC = [W * (mobile ? 0.27 : 0.30), H * 0.46];
+        aiC = [W * (mobile ? 0.73 : 0.70), H * 0.46];
+        clusterR = Math.min(W, H) * (mobile ? 0.15 : 0.16);
+
+        const textPts = sampleTextPoints();
+        const ringR = Math.min(W, H) * 0.20;
+        const GOLD = Math.PI * (3 - Math.sqrt(5));
+        particles = []; links = [];
+
+        for (let c = 0; c < 2; c++) {
+          const center = c === 0 ? humanC : aiC;
+          const cols = Math.ceil(Math.sqrt(N));
+          const gap = (clusterR * 2) / cols;
+          for (let i = 0; i < N; i++) {
+            let hx, hy;
+            if (c === 0) { // human — organic gaussian blob
+              const a = Math.random() * Math.PI * 2;
+              const r = clusterR * Math.sqrt(Math.random()) * (0.55 + Math.random() * 0.55);
+              hx = center[0] + Math.cos(a) * r;
+              hy = center[1] + Math.sin(a) * r * 1.12;
+            } else { // ai — strict grid
+              hx = center[0] - clusterR + (i % cols) * gap + gap / 2;
+              hy = center[1] - clusterR + Math.floor(i / cols) * gap + gap / 2;
+            }
+            const exch = Math.random() < 0.34;
+            const opp = c === 0 ? aiC : humanC;
+            const k1 = exch
+              ? [opp[0] + (Math.random() - 0.5) * clusterR * 1.6, opp[1] + (Math.random() - 0.5) * clusterR * 1.6]
+              : [lerp(hx, W / 2, 0.16), lerp(hy, H * 0.46, 0.16)];
+            const gi = c * N + i;
+            const rr = ringR * Math.sqrt((gi + 0.5) / (N * 2));
+            const k2 = [W / 2 + Math.cos(gi * GOLD) * rr, H * 0.46 + Math.sin(gi * GOLD) * rr];
+            const tp = textPts.length ? textPts[Math.floor(Math.random() * textPts.length)] : [W / 2, H / 2];
+            particles.push({
+              c, exch, k0: [hx, hy], k1, k2, k3: [tp[0], tp[1]],
+              seed: Math.random() * Math.PI * 2,
+              size: c === 0 ? 1.4 + Math.random() * 1.4 : 1.6 + Math.random() * 0.8
+            });
+          }
+        }
+        // signal links: exchanger ↔ random particle of opposite cluster
+        particles.forEach((pt, i) => {
+          if (pt.exch && Math.random() < 0.7) {
+            const j = (pt.c === 0 ? N : 0) + Math.floor(Math.random() * N);
+            links.push([i, j]);
+          }
+        });
+      }
+
+      function pos(pt, prog, t) {
+        const sA = ease(seg(prog, 0.28, 0.55));
+        const sB = ease(seg(prog, 0.55, 0.82));
+        const sC = ease(seg(prog, 0.82, 0.96));
+        let x = pt.k0[0], y = pt.k0[1];
+        x = lerp(x, pt.k1[0], sA); y = lerp(y, pt.k1[1], sA);
+        x = lerp(x, pt.k2[0], sB); y = lerp(y, pt.k2[1], sB);
+        x = lerp(x, pt.k3[0], sC); y = lerp(y, pt.k3[1], sC);
+        // organic drift, decays as structure forms (AI drifts less)
+        const amp = (pt.c === 0 ? 7 : 2.5) * (1 - sB * 0.6) * (1 - sC);
+        x += Math.sin(t * 0.0011 + pt.seed * 3.1) * amp;
+        y += Math.cos(t * 0.0009 + pt.seed * 2.3) * amp;
+        return [x, y];
+      }
+
+      function render(t) {
+        ctx.clearRect(0, 0, W, H);
+        const fade = 1 - seg(p, 0.95, 1);
+        ctx.globalAlpha = fade;
+
+        const coords = particles.map(pt => pos(pt, p, t));
+
+        // signal links (phase 2)
+        const linkA = Math.sin(seg(p, 0.24, 0.62) * Math.PI);
+        if (linkA > 0.01) {
+          ctx.lineWidth = 1;
+          ctx.strokeStyle = `rgba(85, 184, 226, ${0.22 * linkA * fade})`;
+          ctx.beginPath();
+          links.forEach(([i, j]) => {
+            ctx.moveTo(coords[i][0], coords[i][1]);
+            ctx.lineTo(coords[j][0], coords[j][1]);
+          });
+          ctx.stroke();
+        }
+
+        // particles — human: circles / ai: squares
+        particles.forEach((pt, i) => {
+          const [x, y] = coords[i];
+          const col = pt.c === 0 ? HUMAN_COLOR : AI_COLOR;
+          ctx.fillStyle = `rgba(${col[0]}, ${col[1]}, ${col[2]}, ${pt.c === 0 ? 0.85 : 0.9})`;
+          if (pt.c === 0) {
+            ctx.beginPath();
+            ctx.arc(x, y, pt.size, 0, Math.PI * 2);
+            ctx.fill();
+          } else {
+            ctx.fillRect(x - pt.size, y - pt.size, pt.size * 2, pt.size * 2);
+          }
+        });
+
+        // cluster labels (phase 1 only)
+        const labA = (1 - seg(p, 0.2, 0.34)) * fade;
+        if (labA > 0.01) {
+          ctx.font = '500 11px "DM Mono", monospace';
+          ctx.textAlign = 'center';
+          ctx.fillStyle = `rgba(235, 229, 217, ${0.5 * labA})`;
+          ctx.fillText('H U M A N', humanC[0], humanC[1] + clusterR * 1.45);
+          ctx.fillStyle = `rgba(168, 216, 78, ${0.6 * labA})`;
+          ctx.fillText('A I', aiC[0], aiC[1] + clusterR * 1.45);
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      function updateCaption() {
+        let idx = 0;
+        for (let i = 0; i < PHASES.length; i++) if (p >= PHASES[i].at) idx = i;
+        if (idx !== phaseIdx) {
+          phaseIdx = idx;
+          phaseEl.textContent = PHASES[idx].num;
+          labelEl.textContent = PHASES[idx].label;
+          subEl.textContent = PHASES[idx].sub;
+        }
+        const vis = 1 - seg(p, 0.93, 0.985);
+        captionEl.style.opacity = vis;
+        skipBtn.style.opacity = vis;
+        skipBtn.style.pointerEvents = vis < 0.3 ? 'none' : '';
+        hintEl.style.opacity = p < 0.04 ? 1 : 0;
+      }
+
+      function readScroll() {
+        const rect = intro.getBoundingClientRect();
+        const track = intro.offsetHeight - window.innerHeight;
+        pRaw = track > 0 ? clamp(-rect.top / track, 0, 1) : 0;
+      }
+
+      function loop(t) {
+        p += (pRaw - p) * 0.09;
+        if (Math.abs(pRaw - p) < 0.0005) p = pRaw;
+        render(t);
+        updateCaption();
+        requestAnimationFrame(loop);
+      }
+
+      skipBtn.addEventListener('click', () => {
+        window.scrollTo({ top: intro.offsetTop + intro.offsetHeight - window.innerHeight + 2, behavior: 'smooth' });
+      });
+
+      build();
+      if (reduced) {
+        // static fallback: formed text frame, final caption, no loop
+        p = pRaw = 0.9;
+        render(0);
+        updateCaption();
+        window.addEventListener('resize', () => { build(); render(0); });
+      } else {
+        readScroll();
+        p = pRaw;
+        window.addEventListener('scroll', readScroll, { passive: true });
+        window.addEventListener('resize', () => { build(); readScroll(); });
+        requestAnimationFrame(loop);
+      }
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { build(); });
+    })();
+
     // ── GAME PORTFOLIO VISIBILITY ─────────────────────────────
     // Set to true to show Game UX Analysis link and hero button
     const SHOW_GAME_PORTFOLIO = false;
